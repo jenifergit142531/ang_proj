@@ -1,0 +1,23 @@
+<div class="container my-5">
+<h1> Book Store </h1>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Book Id</th>
+            <th>Book Name</th>
+            <th>Author</th>
+            <th>Price</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr *ngFor='let b of books'>
+            <td>{{b.bid}}</td>
+            <td>{{b.bname}}</td>
+            <td>{{b.author}}</td>
+            <td>{{b.price}}</td>
+            <td><a [routerLink]="['/books','edit',b.bid]">View</a></td>
+        </tr>
+    </tbody>
+</table>
+</div>
