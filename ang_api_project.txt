@@ -1,0 +1,619 @@
+Step1 :
+
+create a angular project in vscode
+
+ng new fullstackUI
+
+- goto index.html 
+
+add bootstrap info from the websitte https://getbootstrap.com/docs/5.0/getting-started/introduction/
+
+- add the css and js links to the <head>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+
+
+- goto app.component.html
+
+* delete all the contents and add Navbar from(bootstrap website)
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <div class="container">
+    <a class="navbar-brand" href="#">FullstackUI</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav">
+        <li class="nav-item">
+          <a class="nav-link active" aria-current="page" href="#">Home</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link active" aria-current="page" href="#">About Us</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link active" aria-current="page" href="#">Books</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link active" aria-current="page" href="#">Contact</a>
+        </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+
+  <router-outlet> </router-outlet>
+
+
+- configure routes 
+
+const routes: Routes = [
+
+  {
+    path:'',component:BooksComponent
+  },
+  {
+    path:'books',component:BooksComponent
+  },
+  {
+    path:'home',component:HomeComponent
+  },
+  {
+    path:'about',component:AboutComponent
+  },
+  {
+    path:'contact',component:ContactComponent
+  }
+];
+
+
+- change the app.component.html file as
+
+<div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav">
+        <li class="nav-item">
+          <a  class="nav-link active" aria-current="page" routerLink="home">Home</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link active" aria-current="page" routerLink="about">About Us</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link active" aria-current="page" routerLink="books">View Books</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link active" aria-current="page" routerLink="addbook">Add Books</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link active" aria-current="page" routerLink="contact">Contact</a>
+        </li>
+        
+      </ul>
+
+- create a model folder and add an interface(books.model.ts)
+
+export interface Book{
+    bid:string,
+    bname:string,
+    author:string,
+    price:number;
+
+
+}
+
+
+
+
+
+
+
+
+- create a web api
+
+
+- come back to angular and goto tsconfig.json
+
+],
+    "typeRoots": [
+      "node_modules/@types",
+      "node_modules/@angular",
+      "node_modules/@angular/common/http"
+    ]
+  },
+
+
+
+- copy the url from web api 
+
+https://localhost:7086/
+
+
+and go to environment folder in angular and 
+
+export const environment = {
+  production: false,
+  baseApiUrl:'https://localhost:7086'
+};
+
+
+- also add a folder services and include service
+ng g s books
+- go to books.service.ts and code 
+
+export class BooksService {
+
+  baseApiUrl:string=environment.baseApiUrl;
+  constructor(private http:HttpClient) { }
+
+  getAllBooks():Observable<Book[]>
+  {
+    return this.http.get<Book[]>(this.baseApiUrl+'/api/Books');
+  }
+
+}
+
+
+- goto books.component.ts
+
+export class BooksComponent implements OnInit {
+
+  books:Book[]=[];
+
+  constructor(private bookservices:BooksService) { }
+
+  ngOnInit(): void {
+    this.bookservices.getAllBooks()
+    .subscribe({
+      next:(books)=>
+      {
+        console.log(books);
+      },
+      error:(response)=>
+      {
+        console.log(response);
+      }
+    })
+  }
+
+}
+
+- goto books.component.html
+
+<div class="container my-5">
+<h1> Book Store </h1>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Book Id</th>
+            <th>Book Name</th>
+            <th>Author</th>
+            <th>Price</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr *ngFor='let b of books'>
+            <td>{{b.bid}}</td>
+            <td>{{b.bname}}</td>
+            <td>{{b.author}}</td>
+            <td>{{b.price}}</td>
+        </tr>
+    </tbody>
+</table>
+</div>
+
+
+- keep the vstodio execute and execute vscode
+
+- throws error due to cross orgin
+
+- stop executing vsstudio and goto program.cs
+
+app.UseHttpsRedirection();
+
+app.UseCors(policy=>policy.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin());
+
+
+- execute vstudio (let the swagger load)...execute vscode
+
+- inspect vscode (see an array on console but does on see on ui)
+
+
+select :
+- goto books.component.ts
+ngOnInit(): void {
+    this.bookservices.getAllBooks()
+    .subscribe({
+      next:(books)=>
+      {
+        this.books=books; //add this line
+      },
+      error:(response)=>
+      {
+        console.log(response);
+      }
+    })
+  }
+
+- execute vs code again...see the output
+
+
+___________________________________________________________
+
+To insert book details:
+
+- create a new component 
+ng g c add-component
+
+* goto app-routing.module.ts
+
+{
+    path:'addbook',component:AddBookComponent
+  }
+
+*goto app.module.ts and add formsmodule
+
+import { FormsModule } from '@angular/forms';
+imports: [
+    BrowserModule,
+    AppRoutingModule,
+    HttpClientModule,
+    FormsModule
+  ],
+
+
+
+* goto app.component.html
+
+<li class="nav-item">
+          <a class="nav-link active" aria-current="page" routerLink="addbook">Add Books</a>
+        </li>
+
+- goto add-book.component.html
+
+<div class="container my-5">
+    <h1 class="mb-3">Add New Books</h1>
+    <div class="row">
+        <div class="col-3">
+         <form #form="ngForm">
+                <div class="mb-3">
+                  <label for="name" class="form-label">Name</label>
+                  <input type="text" class="form-control" id="name" >
+                 
+                </div>
+                <div class="mb-3">
+                    <label for="author" class="form-label">Author</label>
+                    <input type="text" class="form-control" id="author" >
+                   
+                  </div>
+                  <div class="mb-3">
+                    <label for="price" class="form-label">Price</label>
+                    <input type="number" class="form-control" id="price" >
+                   
+                  </div>
+               
+                <button type="submit" class="btn btn-primary">Create</button>
+              </form> 
+        </div>
+    </div>
+        
+  
+</div>
+
+
+
+- goto add-book.component.ts
+
+export class AddBookComponent implements OnInit {
+
+  addBookRequest:Book={
+    bid:'',
+    bname:'',
+    author:'',
+    price: 0,
+  };
+
+
+- add-book.component.html(bind the value)
+
+ <form #form="ngForm" (ngSubmit)="addBook()">
+                <div class="mb-3">
+                  <label for="name" class="form-label">Name</label>
+                  <input type="text" class="form-control" id="name" name="bname" [(ngModel)]="addBookRequest.bname" >
+                 
+                </div>
+                <div class="mb-3">
+                    <label for="author" class="form-label">Author</label>
+                    <input type="text" class="form-control" id="author" name="author" [(ngModel)]="addBookRequest.author" >
+                   
+                  </div>
+                  <div class="mb-3">
+                    <label for="price" class="form-label">Price</label>
+                    <input type="number" class="form-control" id="price" name="bprice" [(ngModel)]="addBookRequest.price">
+                  </div>
+               
+                <button type="submit" class="btn btn-primary">Create</button>
+              </form> 
+
+
+
+* goto books.service.ts
+
+addBook(addBookRequest:Book) : Observable<Book>
+  {
+    addBookRequest.bid='00000000-0000-0000-0000-000000000000';  //add empty guid to avoid error 
+    return this.http.post<Book>(this.baseApiUrl+'/api/Books',addBookRequest);
+  }
+
+
+*MAKE SOME CHANGES IN add- book.component.ts
+
+constructor(private bookservice:BooksService,private router:Router) { }      //add router on the existing constructor
+
+  ngOnInit(): void {
+  }
+  addBook()
+  {
+    this.bookservice.addBook(this.addBookRequest)
+    .subscribe({
+      next:(book)=>
+      {
+        this.router.navigate(['books']);    //add this code to redirect to the book component page
+        console.log(book);
+      },
+      error:(response)=>
+      {
+        console.log(response);
+      }
+    });
+  }
+
+*execute again to check (as soon as you add new book it should navigate to the book component)
+
+
+notes:
+- book.component.ts
+
+create addBook()
+
+
+check the method :
+
+addBook()
+  {
+    console.log(this.addBookRequest);
+  }
+
+* execute and check the output on screen
+________________________________________________
+
+
+Edit :
+
+- create a new component 
+ng g c edit-book
+
+- goto app.routing and add new path
+{
+    path:'books/edit/:bid',component:EditBookComponent
+  }
+
+- goto books.component.html and add the view button
+add empty header on the<thead>
+ <th></th>
+
+add in<tbody>
+
+ <td><a [routerLink]="['/books','edit',b.bid]">View</a></td>
+
+- goto edit-book.componenet.html
+
+<div class="container my-5">
+    <h1 class="mb-3">Add New Books</h1>
+    <div class="row">
+        <div class="col-3">
+            <form #form="ngForm" >
+                <div class="mb-3">
+                    <label for="bid" class="form-label">Bid</label>
+                    <input type="text" class="form-control" id="bid" readonly name="bid" [(ngModel)]="addBookRequest.bid">     //newely added
+                   
+                  </div>
+                <div class="mb-3">
+                  <label for="name" class="form-label">Name</label>
+                  <input type="text" class="form-control" id="name" name="bname" [(ngModel)]="addBookRequest.bname">
+                 
+                </div>
+                <div class="mb-3">
+                    <label for="author" class="form-label">Author</label>
+                    <input type="text" class="form-control" id="author" name="author" [(ngModel)]="addBookRequest.author">
+                   
+                  </div>
+                  <div class="mb-3">
+                    <label for="price" class="form-label">Price</label>
+                    <input type="number" class="form-control" id="price" name="price" [(ngModel)]="addBookRequest.price">
+                  </div>
+               
+                <button type="submit" class="btn btn-primary">Create</button>
+              </form> 
+        </div>
+    </div>
+        
+  
+</div>
+
+
+* goto books.service.ts
+
+first we need to get the book id use get(id) then we edit the record
+
+getEmployee(bid:string) : Observable<Book>{
+    return this.http.get<Book>(this.baseApiUrl+'/api/Books/'+bid);
+  }
+
+*goto edit-book.component.ts
+
+
+export class EditBookComponent implements OnInit {
+bookDetails : Book={
+  bid:'',
+  bname:'',
+  author:'',
+  price: 0,
+};
+
+  constructor(private route:ActivatedRoute,private bookservice:BooksService) { }
+
+  ngOnInit(): void {
+    this.route.paramMap.subscribe({
+      next:(params)=>
+      {
+        const bid=params.get('bid');
+        if(bid){
+          this.bookservice.getBook(bid)
+          .subscribe({
+            next:(response)=>{
+              this.bookDetails=response;
+
+            }
+          })
+        }
+
+      }
+    })
+
+  }
+
+
+* goto edit-book.component.html
+
+
+ <form #form="ngForm" (ngSubmit)="updateBook()" >
+                <div class="mb-3">
+
+
+
+
+...... <button type="submit" class="btn btn-primary">Edit</button>
+
+
+- goto books.services.ts
+
+updateBook(bid:string,updateBookRequest:Book):Observable<Book>
+  {
+
+    return this.http.put<Book>(this.baseApiUrl+'/api/Books/'+bid,updateBookRequest);
+    
+  }
+
+
+- come back to edit-book.component.ts
+
+export class EditBookComponent implements OnInit {
+bookDetails : Book={
+  bid:'',
+  bname:'',
+  author:'',
+  price: 0,
+};
+
+  constructor(private route:ActivatedRoute,private bookservice:BooksService,private router:Router) { }
+
+  ngOnInit(): void {
+    this.route.paramMap.subscribe({
+      next:(params)=>
+      {
+        const bid=params.get('bid');
+        if(bid){
+          this.bookservice.getBook(bid)
+          .subscribe({
+            next:(response)=>{
+              this.bookDetails=response;
+
+            }
+          })
+        }
+
+      }
+    })
+
+  }
+
+  updateBook()
+  {
+    this.bookservice.updateBook(this.bookDetails.bid,this.bookDetails)
+    .subscribe({
+      next:(response)=>
+      {
+        this.router.navigate(['books']);
+        
+      },
+      error:(response)=>
+      {
+        console.log(response);
+      }
+    });
+  }
+  
+
+}
+
+
+
+Delete :
+
+
+books.services.ts
+
+ deleteBook(bid:string):Observable<Book>
+  { 
+   return this.http.delete<Book>(this.baseApiUrl+'/api/Books/'+bid);
+  }
+
+
+goto edit-book.component.ts
+
+deleteBook(bid:string)
+  {
+     this.bookservice.deleteBook(bid)
+     .subscribe({
+      next:(response)=>
+      {
+        this.router.navigate(['books']);
+      }
+      
+     });
+  }
+  
+
+
+goto edit-book.component.html
+<button type="button" class="btn btn-danger" (click)="deleteBook(bookDetails.bid)">Delete</button>
+
+
+- execute and it will all work fine
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
